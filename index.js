@@ -4,7 +4,8 @@ const {
   removeContact,
   addContact,
 } = require("./contacts");
-// const { program } = require("commander");
+
+const { program } = require("commander");
 
 async function invokeAction({ action, name, email, phone, contactId }) {
   switch (action) {
@@ -30,4 +31,29 @@ async function invokeAction({ action, name, email, phone, contactId }) {
   }
 }
 
-invokeAction({ action: "list" });
+program.option("-a, --action <list>").action((options) => {
+  invokeAction({ action: "list" });
+});
+
+program
+  .option("-n, --name <add>", "user name")
+  .option("-e, --email <add>", "user email")
+  .option("-p, --phone <add>", "user phone")
+  .action((options) => {
+    let name,
+      email,
+      phone = options;
+    invokeAction({ action: "add", name, email, phone });
+  });
+
+program.option("-i, --id <get>", "user id").action((options) => {
+  const id = options;
+  invokeAction({ action: "get", id });
+});
+
+program.option("-i, --id <remove>", "user id").action((options) => {
+  const id = options;
+  invokeAction({ action: "remove", id });
+});
+
+program.parse();
