@@ -11,13 +11,12 @@ async function listContacts() {
 
 async function getContactById(contactId) {
   const db = await listContacts();
-  const findContact = db.find((contact) => contact.id === contactId);
-  await fs.writeFile(contactsPath, JSON.stringify(findContact, null, 4));
+  return db.find((contact) => contact.id === contactId);
 }
 
 async function removeContact(contactId) {
   const db = await listContacts();
-  const updatedDb = db.filter((contact) => contact.id === contactId);
+  const updatedDb = db.filter((contact) => contact.id !== contactId);
   await fs.writeFile(contactsPath, JSON.stringify(updatedDb, null, 4));
 }
 
