@@ -5,55 +5,40 @@ const {
   addContact,
 } = require("./contacts");
 
-const { program } = require("commander");
+const { Command } = require("commander");
 
-async function invokeAction({ action, name, email, phone, contactId }) {
+const program = new Command();
+
+program
+  .option("-a, --action <type>", "choose action")
+  .option("-i, --id <type>", "user id")
+  .option("-n, --name <type>", "user name")
+  .option("-e, --email <type>", "user email")
+  .option("-p, --phone <type>", "user phone");
+
+program.parse(process.argv);
+
+const argv = program.opts();
+
+async function invokeAction({ action, name, email, phone, id }) {
   switch (action) {
     case "list":
-      const contacts = await listContacts();
-      console.table(contacts);
+      console.table(await listContacts());
       break;
     case "get":
-      await getContactById(contactId);
+      console.table(await getContactById(id));
       break;
     case "remove":
-      await removeContact(contactId);
+      await removeContact(id);
+      console.table(await listContacts());
       break;
     case "add":
       await addContact(name, email, phone);
+      console.table(await listContacts());
       break;
     default:
       console.warn("\x1B[31m Unknown action type!");
   }
 }
 
-program.option("-a, --action <list>").action((options) => {
-  invokeAction({ action: "list" });
-});
-
-program.option("-i, --action <get>", "user id").action((options) => {
-  const id = options;
-  invokeAction({ action: "get", id });
-});
-
-program
-  .option("-a, --action <add>")
-  .option("-n, --name <add>", "user name")
-  .option("-e, --email <add>", "user email")
-  .option("-p, --phone <add>", "user phone")
-  .action((options) => {
-    let name,
-      email,
-      phone = options;
-    invokeAction({ action: "add", name, email, phone });
-  });
-
-program
-  .option("-a, --action <remove>")
-  .option("-i, --id", "user id")
-  .action((options) => {
-    const { id } = options;
-    invokeAction({ action: "remove", id });
-  });
-
-program.parse();
+invokeAction(argv);
